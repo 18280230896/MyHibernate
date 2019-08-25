@@ -3,10 +3,7 @@ package com.llg.reverse;
 import com.llg.util.DBUtil;
 
 import java.io.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +53,14 @@ public class ReverseProject {
         writer.println("import com.llg.annotation.Column;");
         writer.println("import com.llg.annotation.ID;");
         writer.println("import com.llg.annotation.Table;");
+        writer.println();
+        //遍历字段，导入所需的类
+        for (Field field : bean.getFields()) {
+            String s = importClass(field.getType());
+            if (s != null) {
+                writer.println("import "+s+";");
+            }
+        }
         writer.println();
         //输出类注解
         writer.println("@Table(\"" + getTableName(bean.getClassName()) + "\")");
@@ -134,8 +139,18 @@ public class ReverseProject {
         else if (type.startsWith("varchar")) t = "String";
         else if (type.startsWith("float")) t = "float";
         else if (type.startsWith("double")) t = "double";
+        else if (type.startsWith("timestamp")) t = "Timestamp";
+        else if (type.startsWith("date")) t = "Date";
         else t = "String";
         return t;
+    }
+
+    private static String importClass(String type) {
+        String s;
+        if (type.startsWith("timestamp")) s = "java.sql.Timestamp";
+        else if (type.startsWith("date")) s = "java.util.Date";
+        else s = null;
+        return s;
     }
 
     /**
