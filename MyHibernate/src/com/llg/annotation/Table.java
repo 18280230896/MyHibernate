@@ -16,5 +16,5 @@ public @interface Table {
      * 表示该类所对应的数据库表名称
      * @return
      */
-    String name();
+    String value();
 }

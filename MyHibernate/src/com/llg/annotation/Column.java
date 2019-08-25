@@ -16,5 +16,5 @@ public @interface Column {
      * 表示该字段所对应的数据库表的列名称
      * @return
      */
-    String name();
+    String value();
 }

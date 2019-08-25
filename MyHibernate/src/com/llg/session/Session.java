@@ -40,7 +40,7 @@ public class Session {
         if (table == null) throw new ClassNoMappingException(clazz.getName() + ClassNoMappingException.ERR_MSG);
         try {
             //判断表是否存在
-            rs = conn.createStatement().executeQuery("show tables like '" + table.name() + "'");
+            rs = conn.createStatement().executeQuery("show tables like '" + table.value() + "'");
             if (rs.next()) return;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -55,7 +55,7 @@ public class Session {
 
     private static <T> String getCreateTableSql(Class<T> clazz) {
         StringBuilder sb = new StringBuilder("create table ");
-        sb.append(clazz.getAnnotation(Table.class).name());
+        sb.append(clazz.getAnnotation(Table.class).value());
         sb.append("(");
         boolean existId = false;
         //遍历所有字段
@@ -66,14 +66,14 @@ public class Session {
                 if (existId)
                     throw new PrimaryKeyNotUniqueException(clazz.getName() + PrimaryKeyNotUniqueException.ERR_MSG);
                 existId = true;
-                sb.append(id.name());
+                sb.append(id.value());
                 sb.append(" int primary key auto_increment,");
                 continue;
             }
             //获得Column注解
             Column col = field.getAnnotation(Column.class);
             if (col != null) {
-                sb.append(col.name());
+                sb.append(col.value());
                 sb.append(" ");
                 sb.append(typeHandler(field.getType()));
                 sb.append(",");
@@ -170,11 +170,11 @@ public class Session {
             if (idAnn != null) {
                 if (primaryKey != null)
                     throw new PrimaryKeyNotUniqueException(clazz.getName() + PrimaryKeyNotUniqueException.ERR_MSG);
-                primaryKey = idAnn.name();
+                primaryKey = idAnn.value();
             }
         }
         //拼写sql
-        String sql = "delete from " + table.name() + " where " + primaryKey + "=" + id;
+        String sql = "delete from " + table.value() + " where " + primaryKey + "=" + id;
         boolean success = false;
         try {
             //获得statement对象
@@ -233,7 +233,7 @@ public class Session {
         //定义一个变量表示是否添加成功
         boolean b = false;
         //拼写sql
-        StringBuilder sql = new StringBuilder("insert into " + table.name() + "(");
+        StringBuilder sql = new StringBuilder("insert into " + table.value() + "(");
         sql.append(getColumns(t.getClass()));
         sql.append(") values(");
         sql.append(getColumnsSeat(t.getClass()));
@@ -266,7 +266,7 @@ public class Session {
         //拼写sql
         StringBuilder sb = getSelectColumns(clazz);
         //追加表名
-        sb.append(" from " + table.name());
+        sb.append(" from " + table.value());
         List<T> list = new ArrayList<>();
         try {
             //获取statement对象
@@ -300,7 +300,7 @@ public class Session {
         //拼写sql
         StringBuilder sb = getSelectColumns(clazz);
         //追加表名
-        sb.append(" from " + table.name() + " where ");
+        sb.append(" from " + table.value() + " where ");
         //追加筛选条件
         sb.append(getID(clazz) + "=?");
         String sql = sb.toString();
@@ -366,7 +366,7 @@ public class Session {
                 if (column == null) break;
                 //设置该字段值
                 field.setAccessible(true);
-                field.set(t, rs.getObject(column.name()));
+                field.set(t, rs.getObject(column.value()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -402,7 +402,7 @@ public class Session {
             //获取ID注解
             ID i = field.getAnnotation(ID.class);
             if (i != null) {
-                id = i.name();
+                id = i.value();
                 break;
             }
         }
@@ -449,7 +449,7 @@ public class Session {
             if (c == null) break;
             if (isFirst) isFirst = false;
             else sb.append(",");
-            sb.append(c.name());
+            sb.append(c.value());
         }
         return sb;
     }
@@ -482,7 +482,7 @@ public class Session {
         Table table = clazz.getAnnotation(Table.class);
         if (table == null) throw new ClassNoMappingException(clazz.getName());
         //拼写sql
-        StringBuilder sb = new StringBuilder("update " + table.name() + " set ");
+        StringBuilder sb = new StringBuilder("update " + table.value() + " set ");
         ID idAnn = null;
         Field idField = null;
         boolean isFirst = true;
@@ -501,13 +501,13 @@ public class Session {
             if (column != null) {
                 if (isFirst) isFirst = false;
                 else sb.append(",");
-                sb.append(column.name() + "=?");
+                sb.append(column.value() + "=?");
             }
         }
         //追加where条件
         idField.setAccessible(true);
         try {
-            sb.append(" where " + idAnn.name() + "=" + idField.get(t));
+            sb.append(" where " + idAnn.value() + "=" + idField.get(t));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

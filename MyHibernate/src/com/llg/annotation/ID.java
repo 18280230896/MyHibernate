@@ -16,5 +16,5 @@ public @interface ID {
      * 表中唯一标识列的名称
      * @return
      */
-    String name() default "id";
+    String value() default "id";
 }
